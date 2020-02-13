@@ -36,7 +36,7 @@ elif config == 2:
     turns = []
 
     for i in range(players):
-        turns.append(input("Enter the symbol for the player:   "))
+        turns.append(input("Enter the symbol for player {}:   ".format(i+1)))
 
     filler = input("Enter a character used to designate empty space:   ")
     streak = intput("Enter the number of symbols in a row to win (doesn't affect diagonals):    ")
@@ -56,6 +56,17 @@ displayboard(tictacarray)
 won = False
 
 turnptr = 0
+
+ddir1 = []
+ddir2 = []
+
+for i in range(players):
+    ddir1.append([])
+    ddir2.append([])
+    for j in range(2*size - 1):
+        ddir1[i].append(0)
+        ddir2[i].append(0)
+
 
 rscore = []
 cscore = []
@@ -84,6 +95,48 @@ while turnptr < size*size and not won:
     
     diagonal = True
 
+    for i in range(2*size-1):
+        dstrk1 = 0
+        dstrk2 = 0
+        
+        if i >= size:
+            dlen = 2*size - i
+
+            #abnormal
+            for j in range(dlen):
+                #Diag 1 (normal)
+                if tictacarray[size-j-1][j+(size-dlen)] == turns[player]:
+                    dstrk1 += 1
+                    ddir1[player][i] = max(dstrk1,ddir1[player][j])
+                else:
+                    dstrk1 = 0
+                
+                #Diag 2 (inverted)
+                if tictacarray[size-j-1][size-j-1-(size-dlen)] == turns[player]:
+                    dstrk2 += 1
+                    ddir2[player][i] = max(dstrk2,ddir2[player][j])
+                else:
+                    dstrk2 = 0
+        else:
+            dlen = i + 1
+
+            for j in range(dlen):
+                #Diag 1 (normal)
+                print(i)
+                print(j)
+                if tictacarray[i-j][j] == turns[player]:
+                    dstrk1 += 1
+                    ddir1[player][i] = max(dstrk1,ddir1[player][j])
+                else:
+                    dstrk1 = 0
+                
+                #Diag 2 (inverted)
+                if tictacarray[i-j][size-j-1] == turns[player]:
+                    dstrk2 += 1
+                    ddir2[player][i] = max(dstrk2,ddir2[player][j])
+                else:
+                    dstrk2 = 0
+
     for i in range(size):
         if tictacarray[i][i] == turns[player]:
             pass
@@ -103,11 +156,11 @@ while turnptr < size*size and not won:
             if tictacarray[j][i] == turns[player]:
                 cscore[player][i] += 1
 
-    print(rscore)
-    print(cscore)
+    print(ddir1)
+    print(ddir2)
     print(diagonal)
 
-    if streak in rscore[player] or streak in cscore[player] or diagonal:
+    if streak in rscore[player] or streak in cscore[player] or streak in ddir1[player] or streak in ddir2[player]:
         won = True
 
     turnptr += 1
